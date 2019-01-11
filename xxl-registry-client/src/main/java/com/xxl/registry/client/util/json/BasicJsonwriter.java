@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.*;
 
 /**
@@ -151,9 +152,29 @@ public class BasicJsonwriter {
         if (cacheFields.containsKey(cacheKey)) {
             return cacheFields.get(cacheKey);
         }
-        Field[] fields = obj.getClass().getDeclaredFields();
+        Field[] fields = getAllDeclaredFields(obj.getClass());    //obj.getClass().getDeclaredFields();
         cacheFields.put(cacheKey, fields);
         return fields;
+    }
+
+    public Field[] getAllDeclaredFields(Class<?> clazz) {
+        List<Field> list = new ArrayList<Field>();
+        Class<?> current = clazz;
+
+        while (current != null && current != Object.class) {
+            Field[] fields = current.getDeclaredFields();
+
+            for (Field field : fields) {
+                if (Modifier.isStatic(field.getModifiers())) {
+                    continue;
+                }
+                list.add(field);
+            }
+
+            current = current.getSuperclass();
+        }
+
+        return list.toArray(new Field[list.size()]);
     }
 
     private synchronized Object getFieldObject(Field field, Object obj) {
