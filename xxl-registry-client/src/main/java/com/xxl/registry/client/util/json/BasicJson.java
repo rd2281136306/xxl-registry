@@ -24,16 +24,11 @@ public class BasicJson {
     }
 
 
-    @Deprecated
-    public static Map<String, Object> parseMap(String json) {
-        return parseObject(json, null);
-    }
-
     /**
      * json to <T>
      *
      * @param json
-     * @param clazz  "XXX.class" etc, null means "Map.class"
+     * @param clazz     null for base-class "Integer、Long、Map ... " , other for custome-class
      * @param <T>
      * @return
      */
@@ -49,7 +44,7 @@ public class BasicJson {
         } else {
             // parse class (only first level)
             try {
-                Object objInstance = clazz.newInstance();
+                Object newItem = clazz.newInstance();
                 Field[] fieldList = basicJsonwriter.getAllDeclaredFields(clazz);
                 for (Field field: fieldList) {
 
@@ -58,22 +53,25 @@ public class BasicJson {
                     }
 
                     field.setAccessible(true);
-                    field.set(objInstance, mapObject.get(field.getName()));
+                    field.set(newItem, mapObject.get(field.getName()));
                 }
 
-                return (T) objInstance;
+                return (T) newItem;
             } catch (Exception e) {
                 throw new IllegalArgumentException("Cannot parse JSON", e);
             }
         }
     }
 
+    public static Map<String, Object> parseMap(String json) {
+        return parseObject(json, null);
+    }
 
     /**
      * json to List<T>
      *
      * @param json
-     * @param clazz     clazz  "XXX.class" etc, null means "Map.class"
+     * @param clazz     null for base-class "Integer、Long、Map ... " , other for custome-class
      * @param <T>
      * @return
      */
@@ -100,18 +98,18 @@ public class BasicJson {
 
                     // new item
                     Object newItem = clazz.newInstance();
-                    Map<String, Object> oldItemMap = (Map<String, Object>) oldItem;
+                    Map<String, Object> originItemMap = (Map<String, Object>) oldItem;
 
 
                     // fill field
                     for (Field field: fieldList) {
 
-                        if (!oldItemMap.containsKey(field.getName())) {
+                        if (!originItemMap.containsKey(field.getName())) {
                             continue;
                         }
 
                         field.setAccessible(true);
-                        field.set(newItem, oldItemMap.get(field.getName()));
+                        field.set(newItem, originItemMap.get(field.getName()));
                     }
 
                     newItemList.add(newItem);
@@ -140,6 +138,9 @@ public class BasicJson {
 
         Object jsonObj2 = parseMap(json);
         System.out.println(jsonObj2);
+
+        List<Integer> listInt = parseList("[111,222,33]", null);
+
     }
 
 }
