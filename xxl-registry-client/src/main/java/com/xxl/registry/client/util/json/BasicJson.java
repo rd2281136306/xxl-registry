@@ -1,9 +1,7 @@
 package com.xxl.registry.client.util.json;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.Field;
+import java.util.*;
 
 /**
  * @author xuxueli 2018-11-30
@@ -32,8 +30,47 @@ public class BasicJson {
      * @param json
      * @return
      */
+    @Deprecated
     public static Map<String, Object> parseMap(String json) {
-        return basicJsonReader.parseMap(json);
+        return parseObject(json, Map.class);
+    }
+
+    /**
+     * json to Object
+     *
+     * @param json
+     * @param objClass  like "Map.class、XXX.class" etc
+     * @param <T>
+     * @return
+     */
+    public static <T> T parseObject(String json, Class<T> objClass) {
+
+        // map object
+        Map<String, Object> mapObject = basicJsonReader.parseMap(json);
+
+        // parse desc class
+        if (objClass == Map.class) {
+            return (T) mapObject;
+        } else {
+            // parse class
+            try {
+                Object objInstance = objClass.newInstance();
+                Field[] fieldList = basicJsonwriter.getAllDeclaredFields(objClass);
+                for (Field field: fieldList) {
+
+                    if (!mapObject.containsKey(field.getName())) {
+                        continue;
+                    }
+
+                    field.setAccessible(true);
+                    field.set(objInstance, mapObject.get(field.getName()));
+                }
+
+                return (T) objInstance;
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Cannot parse JSON", e);
+            }
+        }
     }
 
     /**
