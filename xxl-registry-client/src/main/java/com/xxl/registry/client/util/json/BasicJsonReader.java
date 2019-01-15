@@ -45,6 +45,9 @@ public class BasicJsonReader {
 	}
 
 	private Object parseInternal(String json) {
+		if (json.equals("null")) {
+			return null;
+		}
 		if (json.startsWith("[")) {
 			return parseListInternal(json);
 		}
