@@ -10,8 +10,10 @@ import java.util.Map;
  */
 public class BasicJson {
 
+
     private static final BasicJsonReader basicJsonReader = new BasicJsonReader();
     private static final BasicJsonwriter basicJsonwriter = new BasicJsonwriter();
+
 
     /**
      * object to json
@@ -21,6 +23,17 @@ public class BasicJson {
      */
     public static String toJson(Object object) {
         return basicJsonwriter.toJson(object);
+    }
+
+
+    /**
+     * json to Map<String, Object>
+     *
+     * @param json
+     * @return
+     */
+    public static Map<String, Object> parseMap(String json) {
+        return basicJsonReader.parseMap(json);
     }
 
     /**
@@ -33,15 +46,6 @@ public class BasicJson {
         return basicJsonReader.parseList(json);
     }
 
-    /**
-     * json to Map<String, Object>
-     *
-     * @param json
-     * @return
-     */
-    public static Map<String, Object> parseMap(String json) {
-        return basicJsonReader.parseMap(json);
-    }
 
     public static void main(String[] args) {
         Map<String, Object> result = new HashMap<>();
