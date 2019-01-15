@@ -28,24 +28,24 @@ public class BasicJson {
      * json to <T>
      *
      * @param json
-     * @param clazz     null for base-class "Integer、Long、Map ... " , other for custome-class
+     * @param businessClass     null for base-class "Integer、Long、Map ... " , other for business-class
      * @param <T>
      * @return
      */
-    public static <T> T parseObject(String json, Class<T> clazz) {
+    public static <T> T parseObject(String json, Class<T> businessClass) {
 
         // map object
         Map<String, Object> mapObject = basicJsonReader.parseMap(json);
 
 
-        if (clazz == null || mapObject.size()==0) {
+        if (businessClass == null || mapObject.size()==0) {
             // parse map class, default
             return (T) mapObject;
         } else {
             // parse class (only first level)
             try {
-                Object newItem = clazz.newInstance();
-                Field[] fieldList = basicJsonwriter.getAllDeclaredFields(clazz);
+                Object newItem = businessClass.newInstance();
+                Field[] fieldList = basicJsonwriter.getAllDeclaredFields(businessClass);
                 for (Field field: fieldList) {
 
                     if (!mapObject.containsKey(field.getName())) {
@@ -71,16 +71,16 @@ public class BasicJson {
      * json to List<T>
      *
      * @param json
-     * @param clazz     null for base-class "Integer、Long、Map ... " , other for custome-class
+     * @param businessClass     null for base-class "Integer、Long、Map ... " , other for business-class
      * @param <T>
      * @return
      */
-    public static <T> List<T> parseList(String json, Class<T> clazz) {
+    public static <T> List<T> parseList(String json, Class<T> businessClass) {
 
         // list object
         List<Object> listObject = basicJsonReader.parseList(json);
 
-        if (clazz==null || listObject.size()==0) {
+        if (businessClass==null || listObject.size()==0) {
             // parse map class
             return (List<T>) listObject;
         } else {
@@ -91,13 +91,13 @@ public class BasicJson {
             }
             try {
                 // all field
-                Field[] fieldList = basicJsonwriter.getAllDeclaredFields(clazz);
+                Field[] fieldList = basicJsonwriter.getAllDeclaredFields(businessClass);
 
                 List<Object> newItemList = new ArrayList<>();
                 for (Object oldItem: listObject) {
 
                     // new item
-                    Object newItem = clazz.newInstance();
+                    Object newItem = businessClass.newInstance();
                     Map<String, Object> originItemMap = (Map<String, Object>) oldItem;
 
 
