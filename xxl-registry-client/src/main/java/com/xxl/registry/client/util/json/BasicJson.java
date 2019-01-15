@@ -24,38 +24,33 @@ public class BasicJson {
     }
 
 
-    /**
-     * json to Map<String, Object>
-     *
-     * @param json
-     * @return
-     */
     @Deprecated
     public static Map<String, Object> parseMap(String json) {
-        return parseObject(json, Map.class);
+        return parseObject(json, null);
     }
 
     /**
-     * json to Object
+     * json to <T>
      *
      * @param json
-     * @param objClass  like "Map.class、XXX.class" etc
+     * @param clazz  "XXX.class" etc, null means "Map.class"
      * @param <T>
      * @return
      */
-    public static <T> T parseObject(String json, Class<T> objClass) {
+    public static <T> T parseObject(String json, Class<T> clazz) {
 
         // map object
         Map<String, Object> mapObject = basicJsonReader.parseMap(json);
 
-        // parse desc class
-        if (objClass == Map.class) {
+
+        if (clazz == null || mapObject.size()==0) {
+            // parse map class, default
             return (T) mapObject;
         } else {
-            // parse class
+            // parse class (only first level)
             try {
-                Object objInstance = objClass.newInstance();
-                Field[] fieldList = basicJsonwriter.getAllDeclaredFields(objClass);
+                Object objInstance = clazz.newInstance();
+                Field[] fieldList = basicJsonwriter.getAllDeclaredFields(clazz);
                 for (Field field: fieldList) {
 
                     if (!mapObject.containsKey(field.getName())) {
@@ -73,14 +68,62 @@ public class BasicJson {
         }
     }
 
+
     /**
-     * json to List<Object>
+     * json to List<T>
      *
      * @param json
+     * @param clazz     clazz  "XXX.class" etc, null means "Map.class"
+     * @param <T>
      * @return
      */
-    public static List<Object> parseList(String json) {
-        return basicJsonReader.parseList(json);
+    public static <T> List<T> parseList(String json, Class<T> clazz) {
+
+        // list object
+        List<Object> listObject = basicJsonReader.parseList(json);
+
+        if (clazz==null || listObject.size()==0) {
+            // parse map class
+            return (List<T>) listObject;
+        } else {
+            // parse class (only first level)
+
+            if (listObject.get(0).getClass() != LinkedHashMap.class) {
+                throw new IllegalArgumentException("Cannot parse JSON, custom class must match LinkedHashMap");
+            }
+            try {
+                // all field
+                Field[] fieldList = basicJsonwriter.getAllDeclaredFields(clazz);
+
+                List<Object> newItemList = new ArrayList<>();
+                for (Object oldItem: listObject) {
+
+                    // new item
+                    Object newItem = clazz.newInstance();
+                    Map<String, Object> oldItemMap = (Map<String, Object>) oldItem;
+
+
+                    // fill field
+                    for (Field field: fieldList) {
+
+                        if (!oldItemMap.containsKey(field.getName())) {
+                            continue;
+                        }
+
+                        field.setAccessible(true);
+                        field.set(newItem, oldItemMap.get(field.getName()));
+                    }
+
+                    newItemList.add(newItem);
+                }
+                return (List<T>) newItemList;
+
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Cannot parse JSON", e);
+            }
+
+        }
+
     }
 
 
@@ -90,6 +133,7 @@ public class BasicJson {
         result.put("msg", "success");
         result.put("arr", Arrays.asList("111","222"));
         result.put("float", 1.11f);
+        result.put("temp", null);
 
         String json = toJson(result);
         System.out.println(json);
