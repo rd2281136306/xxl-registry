@@ -17,7 +17,7 @@ public class BasicJson {
     private static final BasicJsonwriter basicJsonwriter = new BasicJsonwriter();
 
 
-    // parse object from map
+    // parse biz-object from map-object
     private static <T> T parseBizObjectFromMapObject(final Map<String, Object> mapObject, Class<T> businessClass){
         // parse class (only first level)
         try {
@@ -53,12 +53,16 @@ public class BasicJson {
         }
     }
 
-
+    // parse biz-object-list from origin-list
     public static <T> List<T> parseBizObjectListFromOriginList(List<Object> listObject, Class<T> businessClass) {
-        // parse business class
+        // valid
+        if (listObject.size() == 0) {
+            return new ArrayList<>();
+        }
         if (listObject.get(0).getClass() != LinkedHashMap.class) {
             throw new IllegalArgumentException("Cannot parse JSON, custom class must match LinkedHashMap");
         }
+        // parse business class
         try {
             List<Object> newItemList = new ArrayList<>();
             for (Object oldItem: listObject) {
