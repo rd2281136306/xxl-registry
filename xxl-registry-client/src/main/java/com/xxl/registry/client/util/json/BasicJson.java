@@ -3,6 +3,8 @@ package com.xxl.registry.client.util.json;
 import com.xxl.registry.client.util.FieldReflectionUtil;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.*;
 
 /**
@@ -36,7 +38,8 @@ public class BasicJson {
                     if (fieldValue instanceof LinkedHashMap) {
                         fieldValue = parseBizObjectFromMapObject((LinkedHashMap)fieldValue, field.getType());
                     } else if (fieldValue instanceof ArrayList) {
-                        fieldValue = parseBizObjectListFromOriginList((ArrayList)fieldValue, field.getType());
+                        Type fieldRealType = ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
+                        fieldValue = parseBizObjectListFromMapList((ArrayList)fieldValue, (Class<?>) fieldRealType);
                     } else {
                         fieldValue = FieldReflectionUtil.parseValue(field.getType(), String.valueOf(fieldValue) );
                     }
@@ -53,8 +56,8 @@ public class BasicJson {
         }
     }
 
-    // parse biz-object-list from origin-list
-    public static <T> List<T> parseBizObjectListFromOriginList(List<Object> listObject, Class<T> businessClass) {
+    // parse biz-object-list from map-list
+    public static <T> List<T> parseBizObjectListFromMapList(List<Object> listObject, Class<T> businessClass) {
         // valid
         if (listObject.size() == 0) {
             return new ArrayList<>();
@@ -143,7 +146,7 @@ public class BasicJson {
             // parse map class, default
             return (List<T>) listObject;
         } else {
-            return parseBizObjectListFromOriginList(listObject, businessClass);
+            return parseBizObjectListFromMapList(listObject, businessClass);
         }
 
     }
