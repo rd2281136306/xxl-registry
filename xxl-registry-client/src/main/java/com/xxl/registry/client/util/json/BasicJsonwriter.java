@@ -77,16 +77,17 @@ public class BasicJsonwriter {
         if (value == null) {
             json.append("null");
         } else if (value instanceof String
+                || value instanceof Byte
                 || value instanceof CharSequence) {
             // string
 
             json.append(STR_SLASH).append(value.toString()).append(STR_SLASH);
-        } else if (value instanceof Integer
-                || value instanceof Long
+        } else if ( value instanceof Boolean
                 || value instanceof Short
-                || value instanceof Boolean
-                || value instanceof Double
+                || value instanceof Integer
+                || value instanceof Long
                 || value instanceof Float
+                || value instanceof Double
                 ) {
             // number
 

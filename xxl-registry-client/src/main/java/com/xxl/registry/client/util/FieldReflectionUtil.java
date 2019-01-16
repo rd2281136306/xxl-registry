@@ -78,7 +78,7 @@ public final class FieldReflectionUtil {
 
 
 	/**
-	 * 参数解析 （支持：Byte、Boolean、String、Short、Integer、Long、Float、Double、Date）
+	 * 参数解析 （支持：Byte、Character、Boolean、String、Short、Integer、Long、Float、Double、Date）
 	 *
 	 * @param fieldType
 	 * @param value
@@ -93,13 +93,13 @@ public final class FieldReflectionUtil {
 
 		if (String.class.equals(fieldType)) {
 			return value;
+		} else if (Byte.class.equals(fieldType) || Byte.TYPE.equals(fieldType)) {
+			return parseByte(value);
+		} else if (Character.class.equals(fieldType) || Character.TYPE.equals(fieldType)) {
+			 return value.toCharArray()[0];
 		} else if (Boolean.class.equals(fieldType) || Boolean.TYPE.equals(fieldType)) {
 			return parseBoolean(value);
-		} /*else if (Byte.class.equals(fieldType) || Byte.TYPE.equals(fieldType)) {
-			return parseByte(value);
-		}  else if (Character.class.equals(fieldType) || Character.TYPE.equals(fieldType)) {
-			 return value.toCharArray()[0];
-		}*/ else if (Short.class.equals(fieldType) || Short.TYPE.equals(fieldType)) {
+		} else if (Short.class.equals(fieldType) || Short.TYPE.equals(fieldType)) {
 			 return parseShort(value);
 		} else if (Integer.class.equals(fieldType) || Integer.TYPE.equals(fieldType)) {
 			return parseInt(value);
