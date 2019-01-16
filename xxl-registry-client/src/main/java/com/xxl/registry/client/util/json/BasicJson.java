@@ -4,7 +4,6 @@ import com.xxl.registry.client.util.FieldReflectionUtil;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.*;
 
 /**
@@ -35,12 +34,39 @@ public class BasicJson {
 
                 // valid type
                 if (field.getType() != fieldValue.getClass()) {
+
                     if (fieldValue instanceof LinkedHashMap) {
+
+                        // class field
                         fieldValue = parseBizObjectFromMapObject((LinkedHashMap)fieldValue, field.getType());
                     } else if (fieldValue instanceof ArrayList) {
-                        Type fieldRealType = ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
-                        fieldValue = parseBizObjectListFromMapList((ArrayList)fieldValue, (Class<?>) fieldRealType);
+
+                        // list<?> field
+                        List<Object> fieldValueList = (ArrayList)fieldValue;
+                        if (fieldValueList.size() > 0) {
+
+                            Class list_field_RealType = (Class<?>)((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
+                            if (FieldReflectionUtil.validBaseType(list_field_RealType)) {
+                                // list<base>
+                                if (list_field_RealType != fieldValueList.get(0).getClass()) {
+
+                                    List<Object> list_newItemList = new ArrayList<>();
+                                    for (Object list_oldItem: fieldValueList) {
+
+                                        Object list_newItem = FieldReflectionUtil.parseValue(list_field_RealType, String.valueOf(list_oldItem));
+                                        list_newItemList.add(list_newItem);
+                                    }
+
+                                }
+                            } else {
+                                // list<class>
+                                fieldValue = parseBizObjectListFromMapList((ArrayList)fieldValue, list_field_RealType);
+                            }
+                        }
+
                     } else {
+
+                        // base field
                         fieldValue = FieldReflectionUtil.parseValue(field.getType(), String.valueOf(fieldValue) );
                     }
                 }

@@ -1,7 +1,6 @@
 package com.xxl.registry.client.util;
 
 
-
 /**
  * data type parse
  *
@@ -75,6 +74,35 @@ public final class FieldReflectionUtil {
 			throw new RuntimeException("parseDouble but input illegal input=" + value, e);
 		}
 	}
+
+    /**
+     * 校验基础参数
+     *
+     * @param fieldType
+     * @return
+     */
+	public static boolean validBaseType(Class<?> fieldType){
+        if (String.class.equals(fieldType)) {
+            return true;
+        } else if (Byte.class.equals(fieldType) || Byte.TYPE.equals(fieldType)) {
+            return true;
+        } else if (Character.class.equals(fieldType) || Character.TYPE.equals(fieldType)) {
+            return true;
+        } else if (Boolean.class.equals(fieldType) || Boolean.TYPE.equals(fieldType)) {
+            return true;
+        } else if (Short.class.equals(fieldType) || Short.TYPE.equals(fieldType)) {
+            return true;
+        } else if (Integer.class.equals(fieldType) || Integer.TYPE.equals(fieldType)) {
+            return true;
+        } else if (Long.class.equals(fieldType) || Long.TYPE.equals(fieldType)) {
+            return true;
+        } else if (Float.class.equals(fieldType) || Float.TYPE.equals(fieldType)) {
+            return true;
+        } else if (Double.class.equals(fieldType) || Double.TYPE.equals(fieldType)) {
+            return true;
+        }
+        return false;
+    }
 
 
 	/**
