@@ -27,7 +27,7 @@ public class BasicJson {
 
 
     /**
-     * json to <T>
+     * parse json to <T>
      *
      * @param json
      * @param businessClass     null for base-class "Integer、Long、Map ... " , other for business-class
@@ -44,30 +44,51 @@ public class BasicJson {
             // parse map class, default
             return (T) mapObject;
         } else {
-            // parse class (only first level)
-            try {
-                Object newItem = businessClass.newInstance();
-                Field[] fieldList = basicJsonwriter.getAllDeclaredFields(businessClass);
-                for (Field field: fieldList) {
-
-                    if (!mapObject.containsKey(field.getName())) {
-                        continue;
-                    }
-
-                    field.setAccessible(true);
-                    field.set(newItem, mapObject.get(field.getName()));
-                }
-
-                return (T) newItem;
-            } catch (Exception e) {
-                throw new IllegalArgumentException("Cannot parse JSON", e);
-            }
+            // parse business class
+            return parseObjectFromMap(mapObject, businessClass);
         }
     }
 
+    /**
+     * parse json to map
+     *
+     * @param json
+     * @return
+     */
     public static Map<String, Object> parseMap(String json) {
         return parseObject(json, null);
     }
+
+    // parse object from map
+    private static <T> T parseObjectFromMap(Map<String, Object> mapObject, Class<T> businessClass){
+        // parse class (only first level)
+        try {
+            Object newItem = businessClass.newInstance();
+            Field[] fieldList = basicJsonwriter.getDeclaredFields(businessClass);
+            for (Field field: fieldList) {
+
+                // valid val
+                Object fieldValue = mapObject.get(field.getName());
+                if (fieldValue == null) {
+                    continue;
+                }
+
+                // valid type
+                if (field.getType() != fieldValue.getClass()) {
+                    fieldValue = FieldReflectionUtil.parseValue(field.getType(), String.valueOf(fieldValue) );
+                }
+
+                // field set
+                field.setAccessible(true);
+                field.set(newItem, fieldValue);
+            }
+
+            return (T) newItem;
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Cannot parse JSON", e);
+        }
+    }
+
 
     /**
      * json to List<T>
@@ -83,44 +104,19 @@ public class BasicJson {
         List<Object> listObject = basicJsonReader.parseList(json);
 
         if (businessClass==null || listObject.size()==0) {
-            // parse map class
+            // parse map class, default
             return (List<T>) listObject;
         } else {
-            // parse class (only first level)
-
+            // parse business class
             if (listObject.get(0).getClass() != LinkedHashMap.class) {
                 throw new IllegalArgumentException("Cannot parse JSON, custom class must match LinkedHashMap");
             }
             try {
-                // all field
-                Field[] fieldList = basicJsonwriter.getAllDeclaredFields(businessClass);
-
                 List<Object> newItemList = new ArrayList<>();
                 for (Object oldItem: listObject) {
 
-                    // new item
-                    Object newItem = businessClass.newInstance();
-                    Map<String, Object> originItemMap = (Map<String, Object>) oldItem;
-
-
-                    // fill field
-                    for (Field field: fieldList) {
-
-                        // valid val
-                        Object fieldValue = originItemMap.get(field.getName());
-                        if (fieldValue == null) {
-                            continue;
-                        }
-
-                        // valid type
-                        if (field.getType() != fieldValue.getClass()) {
-                            fieldValue = FieldReflectionUtil.parseValue(field.getType(), String.valueOf(fieldValue) );
-                        }
-
-                        // field set
-                        field.setAccessible(true);
-                        field.set(newItem, fieldValue);
-                    }
+                    Map<String, Object> oldItemMap = (Map<String, Object>) oldItem;
+                    Object newItem = parseObjectFromMap(oldItemMap, businessClass);
 
                     newItemList.add(newItem);
                 }

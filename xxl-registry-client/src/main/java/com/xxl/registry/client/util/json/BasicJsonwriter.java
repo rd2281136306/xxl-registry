@@ -133,7 +133,7 @@ public class BasicJsonwriter {
             // bean
 
             json.append(STR_OBJECT_LEFT);
-            Field[] fields = getDeclaredFields(value);
+            Field[] fields = getDeclaredFields(value.getClass());
             if (fields.length > 0) {
                 for (Field field : fields) {
                     Object fieldObj = getFieldObject(field, value);
@@ -147,17 +147,17 @@ public class BasicJsonwriter {
         }
     }
 
-    private synchronized Field[] getDeclaredFields(Object obj) {
-        String cacheKey = obj.getClass().getName();
+    public synchronized Field[] getDeclaredFields(Class<?> clazz) {
+        String cacheKey = clazz.getName();
         if (cacheFields.containsKey(cacheKey)) {
             return cacheFields.get(cacheKey);
         }
-        Field[] fields = getAllDeclaredFields(obj.getClass());    //obj.getClass().getDeclaredFields();
+        Field[] fields = getAllDeclaredFields(clazz);    //clazz.getDeclaredFields();
         cacheFields.put(cacheKey, fields);
         return fields;
     }
 
-    public Field[] getAllDeclaredFields(Class<?> clazz) {
+    private Field[] getAllDeclaredFields(Class<?> clazz) {
         List<Field> list = new ArrayList<Field>();
         Class<?> current = clazz;
 
