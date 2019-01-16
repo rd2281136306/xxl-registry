@@ -1,5 +1,7 @@
 package com.xxl.registry.client.util.json;
 
+import com.xxl.registry.client.util.FieldReflectionUtil;
+
 import java.lang.reflect.Field;
 import java.util.*;
 
@@ -104,12 +106,20 @@ public class BasicJson {
                     // fill field
                     for (Field field: fieldList) {
 
-                        if (!originItemMap.containsKey(field.getName())) {
+                        // valid val
+                        Object fieldValue = originItemMap.get(field.getName());
+                        if (fieldValue == null) {
                             continue;
                         }
 
+                        // valid type
+                        if (field.getType() != fieldValue.getClass()) {
+                            fieldValue = FieldReflectionUtil.parseValue(field.getType(), String.valueOf(fieldValue) );
+                        }
+
+                        // field set
                         field.setAccessible(true);
-                        field.set(newItem, originItemMap.get(field.getName()));
+                        field.set(newItem, fieldValue);
                     }
 
                     newItemList.add(newItem);
