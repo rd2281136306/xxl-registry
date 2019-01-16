@@ -37,17 +37,19 @@ public class BasicJson {
 
                     if (fieldValue instanceof LinkedHashMap) {
 
-                        // class field
-                        fieldValue = parseBizObjectFromMapObject((LinkedHashMap)fieldValue, field.getType());
+                        // Map-Value >> only support "class | map"
+                        if (field.getType() != Map.class) {
+                            fieldValue = parseBizObjectFromMapObject((LinkedHashMap)fieldValue, field.getType());
+                        }
                     } else if (fieldValue instanceof ArrayList) {
 
-                        // list<?> field
+                        // List-Value >> only support "List<Base> | List<Class>"
                         List<Object> fieldValueList = (ArrayList)fieldValue;
                         if (fieldValueList.size() > 0) {
 
                             Class list_field_RealType = (Class<?>)((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
                             if (FieldReflectionUtil.validBaseType(list_field_RealType)) {
-                                // list<base>
+                                // List<Base
                                 if (list_field_RealType != fieldValueList.get(0).getClass()) {
 
                                     List<Object> list_newItemList = new ArrayList<>();
@@ -59,14 +61,14 @@ public class BasicJson {
 
                                 }
                             } else {
-                                // list<class>
+                                // List<Class>
                                 fieldValue = parseBizObjectListFromMapList((ArrayList)fieldValue, list_field_RealType);
                             }
                         }
 
                     } else {
 
-                        // base field
+                        // Base-Value >> support base
                         fieldValue = FieldReflectionUtil.parseValue(field.getType(), String.valueOf(fieldValue) );
                     }
                 }
