@@ -1,6 +1,7 @@
 package com.xxl.registry.client;
 
 import com.xxl.registry.client.model.XxlRegistryDataParamVO;
+import com.xxl.registry.client.util.json.BasicJson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +42,7 @@ public class XxlRegistryClient {
                         if (registryData.size() > 0) {
 
                             boolean ret = registryBaseClient.registry(new ArrayList<XxlRegistryDataParamVO>(registryData));
-                            logger.info(">>>>>>>>>>> xxl-registry, refresh registry data {}, registryData = {}", ret?"success":"fail",registryData);
+                            logger.debug(">>>>>>>>>>> xxl-registry, refresh registry data {}, registryData = {}", ret?"success":"fail",registryData);
                         }
                     } catch (Exception e) {
                         if (!registryThreadStop) {
@@ -222,6 +223,8 @@ public class XxlRegistryClient {
         }
 
         // discovery mult
+        Map<String, TreeSet<String>> updatedData = new HashMap<>();
+
         Map<String, TreeSet<String>> keyValueListData = registryBaseClient.discovery(keys);
         if (keyValueListData!=null) {
             for (String keyItem: keyValueListData.keySet()) {
@@ -230,10 +233,26 @@ public class XxlRegistryClient {
                 TreeSet<String> valueSet = new TreeSet<>();
                 valueSet.addAll(keyValueListData.get(keyItem));
 
-                discoveryData.put(keyItem, valueSet);
+                // valid if updated
+                boolean updated = true;
+                TreeSet<String> oldValSet = discoveryData.get(keyItem);
+                if (oldValSet!=null && BasicJson.toJson(oldValSet).equals(BasicJson.toJson(valueSet))) {
+                    updated = false;
+                }
+
+                // set
+                if (updated) {
+                    discoveryData.put(keyItem, valueSet);
+                    updatedData.put(keyItem, valueSet);
+                }
+
             }
         }
-        logger.info(">>>>>>>>>>> xxl-registry, refresh discovery data finish, discoveryData = {}", discoveryData);
+
+        if (updatedData.size() > 0) {
+            logger.info(">>>>>>>>>>> xxl-registry, refresh discovery data finish, discoveryData(updated) = {}", updatedData);
+        }
+        logger.debug(">>>>>>>>>>> xxl-registry, refresh discovery data finish, discoveryData = {}", discoveryData);
     }
 
 

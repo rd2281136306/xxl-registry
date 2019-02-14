@@ -295,7 +295,7 @@ public class XxlRegistryServiceImpl implements IXxlRegistryService, Initializing
     public DeferredResult<ReturnT<String>> monitor(String accessToken, String biz, String env, List<String> keys) {
 
         // init
-        DeferredResult deferredResult = new DeferredResult(30 * 1000L, new ReturnT<>(ReturnT.FAIL_CODE, "Monitor timeout."));
+        DeferredResult deferredResult = new DeferredResult(30 * 1000L, new ReturnT<>(ReturnT.SUCCESS_CODE, "Monitor timeout, no key updated."));
 
         // valid
         if (this.accessToken!=null && this.accessToken.trim().length()>0 && !this.accessToken.equals(accessToken)) {
