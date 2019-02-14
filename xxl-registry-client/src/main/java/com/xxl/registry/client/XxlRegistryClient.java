@@ -69,27 +69,34 @@ public class XxlRegistryClient {
             @Override
             public void run() {
                 while (!registryThreadStop) {
-                    try {
-                        // long polling, monitor, timeout 30s
-                        if (discoveryData.size() > 0) {
 
-                            registryBaseClient.monitor(discoveryData.keySet());
+                    if (discoveryData.size() == 0) {
+                        try {
+                            TimeUnit.SECONDS.sleep(3);
+                        } catch (Exception e) {
+                            if (!registryThreadStop) {
+                                logger.error(">>>>>>>>>>> xxl-registry, discoveryThread error.", e);
+                            }
+                        }
+                    } else {
+                        try {
+                            // monitor
+                            boolean monitorRet = registryBaseClient.monitor(discoveryData.keySet());
+
+                            // avoid fail-retry request too quick
+                            if (!monitorRet){
+                                TimeUnit.SECONDS.sleep(10);
+                            }
 
                             // refreshDiscoveryData, all
                             refreshDiscoveryData(discoveryData.keySet());
-                        }
-                    } catch (Exception e) {
-                        if (!registryThreadStop) {
-                            logger.error(">>>>>>>>>>> xxl-registry, discoveryThread error.", e);
-                        }
-                    }
-                    try {
-                        TimeUnit.SECONDS.sleep(1);
-                    } catch (Exception e) {
-                        if (!registryThreadStop) {
-                            logger.error(">>>>>>>>>>> xxl-registry, discoveryThread error.", e);
+                        } catch (Exception e) {
+                            if (!registryThreadStop) {
+                                logger.error(">>>>>>>>>>> xxl-registry, discoveryThread error.", e);
+                            }
                         }
                     }
+
                 }
                 logger.info(">>>>>>>>>>> xxl-registry, discoveryThread stoped.");
             }

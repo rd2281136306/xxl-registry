@@ -690,7 +690,7 @@ public class XxlRegistryServiceImpl implements IXxlRegistryService, Initializing
         if (deferredResultList != null) {
             registryDeferredResultMap.remove(fileName);
             for (DeferredResult deferredResult: deferredResultList) {
-                deferredResult.setResult(new ReturnT<>(ReturnT.FAIL_CODE, "Monitor key update."));
+                deferredResult.setResult(new ReturnT<>(ReturnT.SUCCESS_CODE, "Monitor key update."));
             }
         }
 
