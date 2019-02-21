@@ -36,7 +36,6 @@ $(function() {
                             }
                         }
                     },
-					{ data: 'version'},
 					{
 						data: 'status',
                         ordering: true,

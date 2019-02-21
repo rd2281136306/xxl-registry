@@ -58,7 +58,6 @@
                                         <th name="env" >环境标识</th>
                                         <th name="key" >注册Key</th>
                                         <th name="data" >注册信息<#--注册Value有效数据--></th>
-                                        <th name="version" >版本</th>
                                         <th name="status" >状态<#--状态：0-正常、1-锁定、2-禁用--></th>
 					                  	<th>操作</th>
 					                </tr>
