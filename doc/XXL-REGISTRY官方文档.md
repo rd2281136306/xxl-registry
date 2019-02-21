@@ -88,8 +88,6 @@ XXL-REGISTRY 是一个轻量级分布式服务注册中心，拥有"轻量级、
 ### 数据库配置
 spring.datasource.url=jdbc:mysql://127.0.0.1:3306/xxl-registry?Unicode=true&characterEncoding=UTF-8
 
-### 注册中心，心跳间隔，单位秒
-xxl.registry.beattime=10
 ### 服务注册数据磁盘同步目录
 xxl.registry.data.filepath=/data/applogs/xxl-registry/registrydata
 
@@ -380,7 +378,7 @@ XXL-REGISTRY内部通过广播机制，集群节点实时同步服务注册信�
 - 3、客户端日志优化：仅变更日志保留为info级别，非核心日志调整为debug级别；
 - 4、内部JSON组件优化，支持多级父类属性序列化；
 - 5、移除冗余属性，如version等； 
-- 6、服务注册中心过期清理同步线程优化，对齐起始时间，避免集群节点数据不一致；
+- 6、服务注册中心全量同步线程优化，对齐起始时间，避免集群节点数据不一致；
 
 ### TODO
 - 服务端：注册IP黑名单、白名单；

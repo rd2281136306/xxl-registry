@@ -40,10 +40,10 @@ public class XxlRegistryServiceImpl implements IXxlRegistryService, Initializing
 
     @Value("${xxl.registry.data.filepath}")
     private String registryDataFilePath;
-    @Value("${xxl.registry.beattime}")
-    private int registryBeatTime;
     @Value("${xxl.registry.accessToken}")
     private String accessToken;
+
+    private int registryBeatTime = 10;
 
 
     @Override
@@ -389,9 +389,6 @@ public class XxlRegistryServiceImpl implements IXxlRegistryService, Initializing
         // valid
         if (registryDataFilePath==null || registryDataFilePath.trim().length()==0) {
             throw new RuntimeException("xxl-registry, registryDataFilePath empty.");
-        }
-        if (!(registryBeatTime>=10 && registryBeatTime<=30)) {
-            throw new RuntimeException("xxl-registry, registryBeatTime invalid.");
         }
 
         /**
