@@ -386,6 +386,14 @@ public class XxlRegistryServiceImpl implements IXxlRegistryService, Initializing
     @Override
     public void afterPropertiesSet() throws Exception {
 
+        // valid
+        if (registryDataFilePath==null || registryDataFilePath.trim().length()==0) {
+            throw new RuntimeException("xxl-registry, registryDataFilePath empty.");
+        }
+        if (!(registryBeatTime>=10 && registryBeatTime<=30)) {
+            throw new RuntimeException("xxl-registry, registryBeatTime invalid.");
+        }
+
         /**
          * registry registry data         (client-num/10 s)
          */
@@ -537,6 +545,19 @@ public class XxlRegistryServiceImpl implements IXxlRegistryService, Initializing
             @Override
             public void run() {
                 while (!executorStoped) {
+
+                    // align to beattime
+                    try {
+                        long sleepSecond = registryBeatTime - (System.currentTimeMillis()/1000)%registryBeatTime;
+                        if (sleepSecond>0 && sleepSecond<registryBeatTime) {
+                            TimeUnit.SECONDS.sleep(sleepSecond);
+                        }
+                    } catch (Exception e) {
+                        if (!executorStoped) {
+                            logger.error(e.getMessage(), e);
+                        }
+                    }
+
                     try {
                         // clean old registry-data in db
                         xxlRegistryDataDao.cleanData(registryBeatTime * 3);
