@@ -12,7 +12,6 @@ public class XxlRegistry {
     private String env;         // 环境标识
     private String key;         // 注册Key
     private String data;        // 注册Value有效数据
-    private String version;     // 版本
     private int status;         // 状态：0-正常、1-锁定、2-禁用
 
     // plugin
@@ -56,14 +55,6 @@ public class XxlRegistry {
 
     public void setData(String data) {
         this.data = data;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
     }
 
     public int getStatus() {

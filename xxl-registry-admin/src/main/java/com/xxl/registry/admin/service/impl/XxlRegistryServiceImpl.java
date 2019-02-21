@@ -70,7 +70,6 @@ public class XxlRegistryServiceImpl implements IXxlRegistryService, Initializing
 
             // sendRegistryDataUpdateMessage (delete)
             xxlRegistry.setData("");
-            xxlRegistry.setVersion(UUID.randomUUID().toString().replaceAll("-", ""));
             sendRegistryDataUpdateMessage(xxlRegistry);
         }
 
@@ -116,14 +115,8 @@ public class XxlRegistryServiceImpl implements IXxlRegistryService, Initializing
             return new ReturnT<String>(ReturnT.FAIL_CODE, "ID参数非法");
         }
 
-        // fill version
-        boolean needMessage = false;
-        if (!xxlRegistry.getData().equals(exist.getData())) {
-            xxlRegistry.setVersion(UUID.randomUUID().toString().replaceAll("-", ""));
-            needMessage = true;
-        } else {
-            xxlRegistry.setVersion(exist.getVersion());
-        }
+        // if refresh
+        boolean needMessage = !xxlRegistry.getData().equals(exist.getData());
 
         int ret = xxlRegistryDao.update(xxlRegistry);
         needMessage = ret>0?needMessage:false;
@@ -162,9 +155,6 @@ public class XxlRegistryServiceImpl implements IXxlRegistryService, Initializing
         if (exist != null) {
             return new ReturnT<String>(ReturnT.FAIL_CODE, "注册Key请勿重复");
         }
-
-        // fill version
-        xxlRegistry.setVersion(UUID.randomUUID().toString().replaceAll("-", ""));
 
         int ret = xxlRegistryDao.add(xxlRegistry);
         boolean needMessage = ret>0?true:false;
@@ -360,7 +350,6 @@ public class XxlRegistryServiceImpl implements IXxlRegistryService, Initializing
             xxlRegistry.setEnv(xxlRegistryData.getEnv());
             xxlRegistry.setKey(xxlRegistryData.getKey());
             xxlRegistry.setData(dataJson);
-            xxlRegistry.setVersion(UUID.randomUUID().toString().replaceAll("-", ""));
             xxlRegistryDao.add(xxlRegistry);
             needMessage = true;
         } else {
@@ -372,7 +361,6 @@ public class XxlRegistryServiceImpl implements IXxlRegistryService, Initializing
 
             if (!xxlRegistry.getData().equals(dataJson)) {
                 xxlRegistry.setData(dataJson);
-                xxlRegistry.setVersion(UUID.randomUUID().toString().replaceAll("-", ""));
                 xxlRegistryDao.update(xxlRegistry);
                 needMessage = true;
             }
@@ -584,7 +572,6 @@ public class XxlRegistryServiceImpl implements IXxlRegistryService, Initializing
                                     // check update, sync db
                                     if (!registryItem.getData().equals(dataJson)) {
                                         registryItem.setData(dataJson);
-                                        registryItem.setVersion(UUID.randomUUID().toString().replaceAll("-", ""));
                                         xxlRegistryDao.update(registryItem);
                                     }
                                 }

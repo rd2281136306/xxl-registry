@@ -8,7 +8,6 @@ CREATE TABLE `xxl_registry` (
   `env` varchar(255) NOT NULL COMMENT '环境标识',
   `key` varchar(255) NOT NULL COMMENT '注册Key',
   `data` text NOT NULL COMMENT '注册Value有效数据',
-  `version` varchar(255) NOT NULL COMMENT '版本',
   `status` tinyint(4) NOT NULL DEFAULT '0' COMMENT '状态：0-正常、1-锁定',
   PRIMARY KEY (`id`),
   UNIQUE KEY `I_b_e_k` (`biz`,`env`,`key`) USING BTREE
